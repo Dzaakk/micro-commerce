@@ -3,12 +3,11 @@ package main
 import (
 	"database/sql"
 
-	"github.com/Dzaakk/micro-commerce/services/auth-service/config"
+	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/config"
 	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/handler"
 	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/repository/postgres"
+	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/service"
 	pb "github.com/Dzaakk/micro-commerce/services/auth-service/proto"
-	"github.com/Dzaakk/micro-commerce/services/auth-service/service"
-	"go.uber.org/zap"
 
 	"github.com/go-micro/plugins/v4/broker/rabbitmq"
 	"github.com/go-micro/plugins/v4/registry/consul"
@@ -25,7 +24,7 @@ func main() {
 
 	db, err := sql.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
-		logger.Fatal("Failed to connect to database", zap.Error(err))
+		logger.Fatal("Failed to connect to database: ", err)
 	}
 	defer db.Close()
 
@@ -50,13 +49,11 @@ func main() {
 	userRepo := postgres.NewUserRepository(db)
 
 	tokenService := service.NewTokenService(cfg.JWTSecret)
-	authService := service.NewAuthService(cfg.JWTSecret, tokenService, srv.Client())
+	authService := service.NewAuthService(userRepo, tokenService, srv.Client())
 
 	authHandler := handler.NewAuthHandler(authService, tokenService, srv.Server().Options().Broker)
 
-	if err := pb.RegisterAuthServiceServer(srv.Server(), authHandler); err != nil {
-		logger.Fatal(err)
-	}
+	pb.RegisterAuthServiceHandler(srv.Server(), authHandler)
 
 	logger.Infof("Starting %s on port %s", srv.Name(), cfg.Port)
 	if err := srv.Run(); err != nil {
