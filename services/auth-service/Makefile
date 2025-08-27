@@ -7,11 +7,10 @@ help:
 	@echo "  make clean  - Clean generated files"
 
 proto:
-	@echo "Generating proto files with protoc $(shell protoc --version)"
-	protoc --go_out=. --go_opt=paths=source_relative \
-	       --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-	       proto/auth.proto
-	@echo "✅ Proto files generated successfully!"
+	protoc --go_out=proto --go_opt=paths=source_relative \
+	       --go-grpc_out=proto --go-grpc_opt=paths=source_relative \
+	       --micro_out=proto --micro_opt=paths=source_relative \
+	       auth.proto
 
 clean:
 	@echo "Cleaning generated proto files..."
