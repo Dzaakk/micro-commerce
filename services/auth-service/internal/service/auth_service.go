@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/model"
-	pb "github.com/Dzaakk/micro-commerce/services/auth-service/internal/proto"
 	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/repository"
+	pb "github.com/Dzaakk/micro-commerce/services/auth-service/proto"
 
 	"go-micro.dev/v4/client"
 	"go-micro.dev/v4/logger"

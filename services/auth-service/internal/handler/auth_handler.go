@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	pb "github.com/Dzaakk/micro-commerce/services/auth-service/internal/proto"
 	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/service"
+	pb "github.com/Dzaakk/micro-commerce/services/auth-service/proto"
 
 	"go-micro.dev/v4/broker"
 	"go-micro.dev/v4/logger"
