@@ -1,0 +1,36 @@
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Development files
+.env.example
+.env.local
+.env.*.local
+*.log
+.air.toml
+
+# Test files
+*_test.go
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Build artifacts
+bin/
+dist/
+*.exe
+api-gateway
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
