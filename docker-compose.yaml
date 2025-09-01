@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: micro-commerce-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - micro-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: micro-commerce-auth
+    environment:
+      PORT: ${AUTH_SERVICE_PORT:-8081}
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRY: ${JWT_EXPIRY:-15m}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${AUTH_SERVICE_PORT:-8081}:${AUTH_SERVICE_PORT:-8081}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - micro-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: micro-commerce-gateway
+    environment:
+      PORT: ${API_GATEWAY_PORT:-8080}
+      AUTH_SERVICE_URL: auth-service:${AUTH_SERVICE_PORT:-8081}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      JWT_SECRET: ${JWT_SECRET}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Future service URLs
+      PRODUCT_SERVICE_URL: product-service:${PRODUCT_SERVICE_PORT:-8082}
+      ORDER_SERVICE_URL: order-service:${ORDER_SERVICE_PORT:-8083}
+      USER_SERVICE_URL: user-service:${USER_SERVICE_PORT:-8084}
+    ports:
+      - "${API_GATEWAY_PORT:-8080}:${API_GATEWAY_PORT:-8080}"
+    depends_on:
+      - auth-service
+    networks:
+      - micro-network
+    restart: unless-stopped
+
+networks:
+  micro-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
