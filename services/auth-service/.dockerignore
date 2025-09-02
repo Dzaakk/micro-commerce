@@ -10,7 +10,7 @@ docs/
 .env.local
 .env.*.local
 *.log
-.air.toml
+!.air.toml
 
 # Test files
 *_test.go
