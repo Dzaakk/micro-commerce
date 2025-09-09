@@ -1,54 +1,35 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
 # Install build dependencies
-RUN apk add --no-cache git make gcc musl-dev
+RUN apk add --no-cache git gcc musl-dev
 
-# Set working directory
-WORKDIR /build
+# Set the working directory
+WORKDIR /app
 
-# Copy go mod files
+# Copy go.mod and go.sum first for better caching
 COPY go.mod go.sum ./
 
 # Download dependencies
 RUN go mod download
 
-# Copy source code
+# Copy the source code
 COPY . .
 
-# Build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-    -ldflags="-w -s" \
-    -o api-gateway \
-    cmd/main.go
+# Build the application - NOTE: main.go is in cmd/ directory
+RUN CGO_ENABLED=0 GOOS=linux go build -o api-gateway ./cmd/main.go
 
-# Final stage
+# Final stage - smaller image
 FROM alpine:3.18
 
-# Install ca-certificates for HTTPS calls
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates
 
-# Create non-root user
-RUN addgroup -g 1000 -S appgroup && \
-    adduser -u 1000 -S appuser -G appgroup
-
-# Set working directory
 WORKDIR /app
 
-# Copy binary from builder
-COPY --from=builder --chown=appuser:appgroup /build/api-gateway .
+# Copy the binary from builder
+COPY --from=builder /app/api-gateway .
 
-# Copy .env file if exists (optional, better to use docker-compose env)
-COPY --chown=appuser:appgroup .env* ./
-
-# Switch to non-root user
-USER appuser
-
-# Expose port
+# Expose the port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-
 # Run the binary
-ENTRYPOINT ["./api-gateway"]
+CMD ["./api-gateway"]
