@@ -40,3 +40,28 @@ type BasicUser struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
 }
+
+type OAuthAuthorizeRequest struct {
+	ResponseType string `form:"response_type" validate:"required,eq=code"`
+	ClientID     string `form:"client_id" validate:"required"`
+	RedirectURI  string `form:"redirect_uri" validate:"required,url"`
+	Scope        string `form:"scope"`
+	State        string `form:"state"`
+}
+
+type OAuthTokenRequest struct {
+	GrantType    string `json:"grant_type" validate:"required"`
+	Code         string `json:"code" validate:"required_if=GrantType authorization_code"`
+	RedirectURI  string `json:"redirect_uri" validate:"required_if=GrantType authorization_code"`
+	ClientID     string `json:"client_id" validate:"required"`
+	ClientSecret string `json:"client_secret" validate:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required_if=GrantType refresh_token"`
+}
+
+type OAuthTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token,omitempty"`
+	Scope        string `json:"scope,omitempty"`
+}
