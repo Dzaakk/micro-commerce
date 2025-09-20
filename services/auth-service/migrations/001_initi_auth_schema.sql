@@ -1,4 +1,3 @@
--- Users table (Resource Owner)
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -10,7 +9,6 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- OAuth Clients (Your microservices/apps)
 CREATE TABLE oauth_clients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     client_id VARCHAR(255) UNIQUE NOT NULL,
@@ -22,7 +20,6 @@ CREATE TABLE oauth_clients (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Authorization Codes (temporary, for auth code flow)
 CREATE TABLE authorization_codes (
     code VARCHAR(255) PRIMARY KEY,
     client_id VARCHAR(255) REFERENCES oauth_clients(client_id),
@@ -33,7 +30,6 @@ CREATE TABLE authorization_codes (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Access Tokens
 CREATE TABLE access_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     token VARCHAR(500) UNIQUE NOT NULL,
@@ -44,7 +40,6 @@ CREATE TABLE access_tokens (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Refresh Tokens
 CREATE TABLE refresh_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     token VARCHAR(500) UNIQUE NOT NULL,
