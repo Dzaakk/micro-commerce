@@ -6,7 +6,7 @@ import (
 	"github.com/Dzaakk/micro-commerce/services/auth-service/internal/model"
 )
 
-type OAuthRepository interface {
+type AuthRepository interface {
 	// OAuth Clients
 	GetClientByID(ctx context.Context, clientID string) (*model.OAuthClient, error)
 	ValidateClientCredentials(ctx context.Context, clientID, clientSecret string) (*model.OAuthClient, error)
