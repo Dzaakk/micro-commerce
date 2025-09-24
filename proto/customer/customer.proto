@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package customer;
 
-option go_package = "github.com/Dzaakk/micro-commerce/proto/customer;customerpb";
+option go_package = "github.com/Dzaakk/micro-commerce/proto/customer;customer";
 
 service CustomerService{
     rpc GetCustomer (GetCustomerReq) returns (GetCustomerRes);
