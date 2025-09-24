@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package customer;
+
+option go_package = "github.com/Dzaakk/micro-commerce/proto/customer;customerpb";
+
+service CustomerService{
+    rpc GetCustomer (GetCustomerReq) returns (GetCustomerRes);
+}
+
+message GetCustomerReq {
+    string customer_id = 1;
+}
+message GetCustomerRes {
+    string customer_id= 1;
+    string username = 2;
+    string email    = 3;
+    string phone_number = 4 ;
+}
